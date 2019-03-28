@@ -37,14 +37,48 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>3.0.0-M3</version>
+				<!-- Running integration tests multiple times -->
 				<executions>
 					<execution>
+						<id>test-case-1</id>
 						<goals>
 							<!-- Binds by default to the lifecycle phase: integration-test. -->
 							<goal>integration-test</goal>
+						</goals>
+						<configuration>
+							<systemPropertyVariables>
+								<TEST>test</TEST>
+							</systemPropertyVariables>
+							<reportNameSuffix>TEST-CASE-1-</reportNameSuffix>
+							<summaryFile>target/failsafe-reports/test-case-1.xml</summaryFile>
+						</configuration>
+					</execution>
+					<execution>
+						<id>test-case-2</id>
+						<goals>
+							<goal>integration-test</goal>
+						</goals>
+						<configuration>
+							<!-- test -->
+							<systemPropertyVariables>
+								<TEST>test</TEST>
+							</systemPropertyVariables>
+							<reportNameSuffix>TEST-CASE-2-</reportNameSuffix>
+							<summaryFile>target/failsafe-reports/test-case-2.xml</summaryFile>
+						</configuration>
+					</execution>
+					<execution>
+						<id>verify</id>
+						<goals>
 							<!-- Binds by default to the lifecycle phase: verify. -->
 							<goal>verify</goal>
 						</goals>
+						<configuration>
+							<summaryFiles>
+								<summaryFile>target/failsafe-reports/test-case-1.xml</summaryFile>
+								<summaryFile>target/failsafe-reports/test-case-2.xml</summaryFile>
+							</summaryFiles>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -62,11 +96,12 @@
 				</configuration>
 				<executions>
 					<execution>
-						<!-- Before the it test, starts the server. -->
+						<!-- Before the it test, starts the server and deploy the application. -->
 						<id>start</id>
 						<phase>pre-integration-test</phase>
 						<goals>
 							<goal>start</goal>
+							<goal>deploy</goal>
 						</goals>
 					</execution>
 					<execution>
@@ -75,6 +110,21 @@
 						<phase>post-integration-test</phase>
 						<goals>
 							<goal>shutdown</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Report -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>3.0.0-M3</version>
+				<executions>
+					<execution>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>failsafe-report-only</goal>
 						</goals>
 					</execution>
 				</executions>
